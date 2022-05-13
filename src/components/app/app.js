@@ -17,7 +17,9 @@ class App extends Component{
                 {name: 'Oleg', salary: 15000, increase: true, rise:true, id: nextId()},
                 {name: 'Andrej', salary: 5000, increase: false, rise:false, id: nextId()},
                 {name: 'Petr', salary: 800, increase: false, rise:false, id: nextId()}
-            ]
+            ],
+            dataSearch: '',
+            filter: 'all'
         }
     }
     
@@ -50,7 +52,7 @@ class App extends Component{
     }
 
     onToggleProp = (id, prop) => {
-            this.setState(({data}) => ({ /// the same that above
+            this.setState(({data}) => ({ 
                 data: data.map(item => {
                     if(item.id === id){
                         return {...item, [prop]: !item[prop]}
@@ -59,11 +61,42 @@ class App extends Component{
                 })
             }))
     }
+
+    searchEmployee = (items, dataSearch) => {
+        if (dataSearch.length === 0){
+            return items;
+        }
+
+        return items.filter(item => {
+            return item.name.indexOf(dataSearch) > -1
+        })
+    }
    
+    onUpdateSearch = (dataSearch) => {
+        this.setState({dataSearch}); //dataSearch: dataSearch
+    }
+
+    filterPost = (items, filter) => {
+        switch (filter) {
+            case 'rise':
+                return items.filter(item => item.rise);
+            case 'moreThan1000':
+                return items.filter(item => item.salary > 1000);
+            default:
+                return items
+        }
+    }
+
+    onFilterSelect = (filter) => {
+        this.setState({filter: filter});
+    }
 
     render(){
+        const {data,dataSearch, filter} = this.state;
         const employeesCounter = this.state.data.length;
         const increasedEmployees = this.state.data.filter(item => item.increase).length;
+        const visibleData = this.filterPost(this.searchEmployee(data,dataSearch), filter);
+
         return (
             <div className="app">
                 <AppInfo 
@@ -71,11 +104,14 @@ class App extends Component{
                     increasedEmployees={increasedEmployees}/>
     
                 <div className="search-panel">
-                    <SearchPanel/>
-                    <AppFilter/>
+                    <SearchPanel 
+                        onUpdateSearch={this.onUpdateSearch}/>
+                    <AppFilter 
+                        filter={filter}
+                        onFilterSelect={this.onFilterSelect}/>
                 </div>
                 <EmployeesList 
-                    data={this.state.data} 
+                    data={visibleData} 
                     onDelete={this.deleteItem} 
                     onToggleProp={this.onToggleProp}/>
                 <EmployeesAddForm 
