@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import nextId from "react-id-generator";
 
 import AppInfo from '../app-info/app-info';
 import SearchPanel from '../search-panel/search-panel';
@@ -13,9 +14,9 @@ class App extends Component{
         super(props);
         this.state = {
             data: [
-                {name: 'Oleg', salary: 15000, increase: true, id: 1},
-                {name: 'Andrej', salary: 5000, increase: false, id: 2},
-                {name: 'Petr', salary: 800, increase: false, id: 3}
+                {name: 'Oleg', salary: 15000, increase: true, id: nextId()},
+                {name: 'Andrej', salary: 5000, increase: false, id: nextId()},
+                {name: 'Petr', salary: 800, increase: false, id: nextId()}
             ]
         }
     }
@@ -32,6 +33,21 @@ class App extends Component{
         })
     }
 
+    addItem = (name,salary) => {
+       const newItem = {
+           name,
+           salary,
+           increase: false,
+           id: nextId()
+       }
+       this.setState(({data}) => {
+           const newArr = [...data, newItem];
+           return {
+               data: newArr
+           }
+       })
+    }
+
     render(){
         return (
             <div className="app">
@@ -41,8 +57,8 @@ class App extends Component{
                     <SearchPanel/>
                     <AppFilter/>
                 </div>
-                <EmployeesList data={this.state.data} onDelete={this.deleteItem}/>
-                <EmployeesAddForm/>
+                <EmployeesList data={this.state.data} onDelete={this.deleteItem} />
+                <EmployeesAddForm onAdd={this.addItem}/>
             </div>
         );
     }
